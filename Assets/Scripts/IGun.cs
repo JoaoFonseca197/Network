@@ -2,17 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class IGun : MonoBehaviour
+public interface IGun 
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    void Shoot(Vector3 origin,Vector3 direction);
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }
