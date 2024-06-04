@@ -1,6 +1,7 @@
 using UnityEngine;
 using Cinemachine;
 using System;
+using TMPro;
 
 
 public class PlayerController : MonoBehaviour, IPlayer
@@ -22,22 +23,23 @@ public class PlayerController : MonoBehaviour, IPlayer
     [SerializeField] private float                      _maxHeadUpAngle;
     [SerializeField] private float                      _gravityForce;
     [SerializeField] private float                      _dragForce;
-    [SerializeField] private IGun                       _weapon;
-    [SerializeField] private Transform                     _camera;
+    [SerializeField] private Transform                  _camera;
+
+    [SerializeField] private int                        _hp;
+    [SerializeField] private TextMeshPro                _hpTextMeshPro;
 
     private Animator                                    _animator;
 
     private Vector2 _input;
-    private Vector3 _acceleration;
     [SerializeField] private Vector3 _velocity;
 
     private bool    _isOnAir;
     private bool    _isDead;
     private bool    _startJump;
+    private IGun    _weapon;
 
     private CharacterController _characterController;
 
-    private float _sinPI4;
     private float _xRotation;
 
     public int HP { get; set; }
@@ -47,9 +49,10 @@ public class PlayerController : MonoBehaviour, IPlayer
 
     private void Awake()
     {
+        HP = _hp;
+        _hpTextMeshPro.text = HP.ToString();
         _xRotation = 0;
         _characterController = GetComponent<CharacterController>();
-        _sinPI4 = Mathf.Sin(Mathf.PI / 4);
         _weapon = GetComponentInChildren<IGun>();
         Cursor.lockState = CursorLockMode.Locked;
 
@@ -129,25 +132,6 @@ public class PlayerController : MonoBehaviour, IPlayer
         if(!_isOnAir)
             _velocity = _velocity * (1 - Time.fixedDeltaTime * _dragForce);
 
-
-
-        //if ((_velocity.x > 0 || _velocity.z > 0) && !_isOnAir)
-        //{
-        //    float dragStrength = Math.Min(_velocity.magnitude, (1 - Mathf.Abs(Vector3.Dot(_velocity.normalized, transform.forward))) * _dragForce);
-        //    _velocity += -_velocity.normalized * dragStrength;
-
-        //}
-
-        //_velocity += _acceleration * Time.fixedDeltaTime;
-
-
-
-
-
-
-
-
-        //_velocity = _velocity.normalized * Mathf.Clamp(_velocity.magnitude, 0, _maxForwardVelocity);
         if (_isOnAir)
         {
             _velocity.y += _gravityForce * Time.deltaTime;
@@ -171,16 +155,24 @@ public class PlayerController : MonoBehaviour, IPlayer
 
     public void ReceiveDamage(int damage)
     {
-        _animator.Play("Hit");
-        CheckDeath();
-        _animator.SetBool("Hit", false);
-
+        if(HP > 0)
+        {
+            HP -= damage;
+            //_animator.Play("Hit");
+            CheckDeath();
+            //_animator.SetBool("Hit", false);
+            _hpTextMeshPro.text = HP.ToString();
+        }
+        
     }
 
     private void CheckDeath()
     {
         if (HP <= 0)
+        {
             _isDead = true;
+            _hpTextMeshPro.text = "Dead";
+        }
         else
             _isDead = false;
     }

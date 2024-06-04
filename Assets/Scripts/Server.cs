@@ -4,15 +4,7 @@ using UnityEngine;
 
 public class Server : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    [SerializeField] private SocketManager _socketManager;
+    [SerializeField] private 
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }

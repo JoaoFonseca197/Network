@@ -18,6 +18,7 @@ public class Gun : MonoBehaviour , IGun
     public  void Shoot(Vector3 origin,Vector3 direction)
     {
         Physics.Raycast(origin, direction,out RaycastHit hit, _gunData.bulletDistance,_gunData.layerMask);
+        
         if(_gunData.magAmmunition <= 0)
             Reload();
         else
