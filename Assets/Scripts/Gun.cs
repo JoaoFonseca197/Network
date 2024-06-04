@@ -25,7 +25,7 @@ public class Gun : MonoBehaviour , IGun
         {
             if (hit.collider != null)
             {
-                hit.transform.GetComponent<IPlayer>().ReceiveDamage(_gunData.gunDamage);
+                hit.transform.GetComponent<ICharacter>().ReceiveDamage(_gunData.gunDamage);
                 _currentBulletNbr--;
             }
 

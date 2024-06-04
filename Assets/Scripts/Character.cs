@@ -4,7 +4,7 @@ using System;
 using TMPro;
 
 
-public class PlayerController : MonoBehaviour, IPlayer
+public class Character : MonoBehaviour, ICharacter
 {
     [SerializeField] private float                      _accelerationForwardForce;
     [SerializeField] private float                      _accelerationStrafeForce;

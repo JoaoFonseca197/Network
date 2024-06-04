@@ -1,6 +1,6 @@
 
 
-public interface IPlayer 
+public interface ICharacter 
 {
     int HP      {  get; }
     bool IsDead {  get; }   

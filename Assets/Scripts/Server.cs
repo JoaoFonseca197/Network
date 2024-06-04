@@ -5,6 +5,7 @@ using UnityEngine;
 public class Server : MonoBehaviour
 {
     [SerializeField] private SocketManager _socketManager;
-    [SerializeField] private 
+    
+    private List<>
 
 }
