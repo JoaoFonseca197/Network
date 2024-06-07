@@ -2,6 +2,7 @@ using UnityEngine;
 using Cinemachine;
 using System;
 using TMPro;
+using Unity.Netcode;
 
 
 public class Character : MonoBehaviour, ICharacter
@@ -37,6 +38,7 @@ public class Character : MonoBehaviour, ICharacter
     private bool    _isDead;
     private bool    _startJump;
     private IGun    _weapon;
+    private NetworkObject _networkObject;
 
     private CharacterController _characterController;
 
@@ -49,6 +51,7 @@ public class Character : MonoBehaviour, ICharacter
 
     private void Awake()
     {
+        _networkObject = GetComponent<NetworkObject>();
         HP = _hp;
         _hpTextMeshPro.text = HP.ToString();
         _xRotation = 0;
@@ -60,9 +63,12 @@ public class Character : MonoBehaviour, ICharacter
 
     private void Update()
     {
-        GetInput();
-        UpdateHead();
-        UpdateRotation();
+        if(_networkObject.IsLocalPlayer)
+        {
+            GetInput();
+            UpdateHead();
+            UpdateRotation();
+        }
     }
 
     private void FixedUpdate()

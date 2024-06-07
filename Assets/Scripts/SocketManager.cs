@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -11,6 +12,7 @@ public class SocketManager : MonoBehaviour
 
     [SerializeField] private Image _imageTCP;
     [SerializeField] private Image _imageUDP;
+    [SerializeField] private Server _server;
 
 
     private Socket _listenerTCP;
@@ -22,6 +24,8 @@ public class SocketManager : MonoBehaviour
 
     private IPEndPoint  _ipEndPoint;
     private EndPoint    _endPoint;
+
+    private List<Socket> _clientSockets;
 
     private void Awake()
     {
@@ -55,7 +59,15 @@ public class SocketManager : MonoBehaviour
 
                 try
                 {
-                    _clientSocketTcp = _listenerTCP.Accept();
+                    byte[] buffer = new byte[4];
+
+                    Socket connectedSocket = _listenerTCP.Accept();
+                    _clientSockets.Add( connectedSocket);
+                    if(connectedSocket.ReceiveFrom(buffer, ref _endPoint)>4)
+                    {
+                        byte[] len = new byte[4]; 
+                    }
+                    connectedSocket.SendTo(buffer, connectedSocket.RemoteEndPoint);
                 }
                 catch (SocketException e)
                 {
@@ -104,62 +116,69 @@ public class SocketManager : MonoBehaviour
 
     private void ReceiveCommands()
     {
+
         if (_clientSocketTcp.Connected)
         {
+
             var lenBytes = new byte[4];
-
-            int nBytes = Receive(lenBytes, true);
-
-            if (nBytes == 4)
+            int nBytes;
+            foreach(Socket socket in _clientSockets)
             {
-                // Convert lenBytes from 4 bytes to a Uint32
-                UInt32 commandLen = BitConverter.ToUInt32(lenBytes);
+                nBytes = Receive(lenBytes, true);
 
-                var commandBytes = new byte[commandLen];
-                nBytes = Receive(commandBytes, false);
-
-                if (nBytes == commandLen)
+                if (nBytes == 4)
                 {
-                    string command = Encoding.ASCII.GetString(commandBytes);
-                    if (command == "up")
+                    // Convert lenBytes from 4 bytes to a Uint32
+                    UInt32 commandLen = BitConverter.ToUInt32(lenBytes);
+
+                    var commandBytes = new byte[commandLen];
+                    nBytes = Receive(commandBytes, false);
+
+                    if (nBytes == commandLen)
                     {
-                        transform.position += Vector3.up * 0.25f;
+                        string command = Encoding.ASCII.GetString(commandBytes);
+                        if (command == "up")
+                        {
+                            transform.position += Vector3.up * 0.25f;
+                        }
+                        else if (command == "down")
+                        {
+                            transform.position += Vector3.down * 0.25f;
+                        }
+                        else if (command == "right")
+                        {
+                            transform.position += Vector3.right * 0.25f;
+                        }
+                        else if (command == "left")
+                        {
+                            transform.position += Vector3.left * 0.25f;
+                        }
+                        else
+                        {
+                            Debug.LogError($"Unknown command {command}!");
+                        }
                     }
-                    else if (command == "down")
+                }
+                else
+                {
+                    try
                     {
-                        transform.position += Vector3.down * 0.25f;
+                        if (_clientSocketTcp.Poll(1, SelectMode.SelectRead))
+                        {
+                        }
                     }
-                    else if (command == "right")
+                    catch (SocketException e)
                     {
-                        transform.position += Vector3.right * 0.25f;
-                    }
-                    else if (command == "left")
-                    {
-                        transform.position += Vector3.left * 0.25f;
-                    }
-                    else
-                    {
-                        Debug.LogError($"Unknown command {command}!");
+                        Debug.LogError(e);
+
+                        // Close the socket if it's not connected anymore
+                        _clientSocketTcp.Close();
+                        _clientSocketTcp = null;
                     }
                 }
             }
-            else
-            {
-                try
-                {
-                    if (_clientSocketTcp.Poll(1, SelectMode.SelectRead))
-                    {
-                    }
-                }
-                catch (SocketException e)
-                {
-                    Debug.LogError(e);
 
-                    // Close the socket if it's not connected anymore
-                    _clientSocketTcp.Close();
-                    _clientSocketTcp = null;
-                }
-            }
+           
         }
         else
         {
@@ -174,12 +193,10 @@ public class SocketManager : MonoBehaviour
         try
         {
             // Normal path - received something
-            int nBytes = _clientSocketTcp.Receive(data);
 
             if (accountForLittleEndian && (!BitConverter.IsLittleEndian))
                 Array.Reverse(data);
 
-            return nBytes;
         }
         catch (SocketException e)
         {
@@ -206,7 +223,7 @@ public class SocketManager : MonoBehaviour
 
             _listenerTCP.Bind(_ipEndPoint);
 
-            _listenerTCP.Listen(1);
+            _listenerTCP.Listen(2);
 
             _listenerTCP.Blocking = false;
         }
@@ -230,5 +247,17 @@ public class SocketManager : MonoBehaviour
         {
             Debug.Log(e);
         }
+    }
+
+    private void SetBytes(UInt32 value, byte[] bytes, int offset)
+    {
+        byte[] lenBytes = BitConverter.GetBytes(value);
+
+        // Ensure little-endian byte order
+        if (!BitConverter.IsLittleEndian)
+            Array.Reverse(lenBytes);
+
+        // Copy the length bytes into the first 4 bytes of the 'bytes' array
+        Array.Copy(lenBytes, 0, bytes, offset, lenBytes.Length);
     }
 }

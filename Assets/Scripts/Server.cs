@@ -7,8 +7,23 @@ public class Server : MonoBehaviour
     
     private List<IPlayer> _players = new List<IPlayer>();
 
-    public void ConnectPlayer()
-    {
+    private int _newPlayerID;
 
+    private void Awake()
+    {
+        _newPlayerID = 1;
+    }
+    public int ConnectPlayer(int playerID,string playerName)
+    {
+        if(playerID == 0)
+        {
+            _players.Add(new Player(_newPlayerID, playerName));
+            _newPlayerID++;
+            return _newPlayerID - 1;
+        }
+        else
+        {
+            return 0;
+        }
     }
 }

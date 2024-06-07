@@ -8,9 +8,16 @@ public class Client : MonoBehaviour
 {
     // Start is called before the first frame update
     [SerializeField] string _server;
-
+    [SerializeField] string _name;
     private Socket _socketTCP;
     private Socket _socketUDP;
+
+    private IPlayer _playerInfo;
+
+    private void Awake()
+    {
+        _playerInfo = new Player(0, "Banana");
+    }
     public void ConnectClient()
     {
         try
@@ -45,7 +52,11 @@ public class Client : MonoBehaviour
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.C))
+        {
             ConnectClient();
+            string command = _playerInfo.ID + " " + _playerInfo.Name;
+            SendTCPMessage(command);
+        }
 
         if (Input.GetKeyDown(KeyCode.S))
             SendTCPMessage("Banana");
@@ -60,6 +71,20 @@ public class Client : MonoBehaviour
             _socketUDP.Shutdown(SocketShutdown.Both);
             _socketUDP.Close();
         }
+        try
+        {
+            if(_socketTCP.Connected)
+            {
+                if(_playerInfo.ID == 0)
+                {
+                    _playerInfo.ID = ReceiveMessage();
+                }
+            }
+        }
+        catch(SocketException e)
+        {
+            Debug.Log(e);
+        }
 
     }
 
@@ -72,6 +97,13 @@ public class Client : MonoBehaviour
         SetBytes(command, bytes, 4);
 
         _socketTCP.Send(bytes, command.Length + 4, SocketFlags.None);
+    }
+
+    private int ReceiveMessage()
+    {
+       int value = _socketTCP.Receive(new byte[4]);
+
+        return value;
     }
 
     private void SendUDPMessage(string command)
