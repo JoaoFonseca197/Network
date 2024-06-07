@@ -1,36 +1,55 @@
+using Unity.Netcode;
 using UnityEngine;
 
-public class Gun : MonoBehaviour , IGun
+public class Gun : NetworkBehaviour , IGun
 {
     [SerializeField] GunData _gunData;
 
     private int     _totalAmmunition;
-    private int     _magAmmunition;
-    private int     _currentBulletNbr;
+    private int     _currentAmmunition;
+
+    public int CurrentAmmunition => _currentAmmunition;
+    public int TotalAmmunition => _totalAmmunition;
 
     private void Awake()
     {
         _totalAmmunition = _gunData.totalAmmunition;
-        _currentBulletNbr = _gunData.magAmmunition;
-        _magAmmunition = _gunData.magAmmunition;
+        _currentAmmunition = _gunData.magAmmunition;
     }
 
     public  void Shoot(Vector3 origin,Vector3 direction)
     {
-        Physics.Raycast(origin, direction,out RaycastHit hit, _gunData.bulletDistance,_gunData.layerMask);
+        //Physics.Raycast(origin, direction,out RaycastHit hit, _gunData.bulletDistance,_gunData.layerMask);
         
-        if(_gunData.magAmmunition <= 0)
+        //if(_gunData.magAmmunition <= 0)
+        //    Reload();
+        //else
+        //{
+        //    if (hit.collider != null)
+        //    {
+        //        hit.transform.GetComponent<ICharacter>().ReceiveDamage(_gunData.gunDamage);
+        //    }
+        //    _currentAmmunition--;
+        //}
+        ShootServerRpc(origin, direction);
+    }
+
+
+    [ServerRpc]
+    public void ShootServerRpc(Vector3 origin, Vector3 direction)
+    {
+        Physics.Raycast(origin, direction, out RaycastHit hit, _gunData.bulletDistance, _gunData.layerMask);
+
+        if (_gunData.magAmmunition <= 0)
             Reload();
         else
         {
             if (hit.collider != null)
             {
                 hit.transform.GetComponent<ICharacter>().ReceiveDamage(_gunData.gunDamage);
-                _currentBulletNbr--;
             }
-
+            _currentAmmunition--;
         }
-        print("Shoot");
     }
 
     private void Reload()

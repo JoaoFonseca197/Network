@@ -5,7 +5,7 @@ using TMPro;
 using Unity.Netcode;
 
 
-public class Character : MonoBehaviour, ICharacter
+public class Character : NetworkBehaviour, ICharacter
 {
     [SerializeField] private float                      _accelerationForwardForce;
     [SerializeField] private float                      _accelerationStrafeForce;
@@ -26,19 +26,21 @@ public class Character : MonoBehaviour, ICharacter
     [SerializeField] private float                      _dragForce;
     [SerializeField] private Transform                  _camera;
 
-    [SerializeField] private int                        _hp;
+    [SerializeField] private int                        _maxHealth;
     [SerializeField] private TextMeshPro                _hpTextMeshPro;
-
+                             
     private Animator                                    _animator;
 
     private Vector2 _input;
     [SerializeField] private Vector3 _velocity;
 
-    private bool    _isOnAir;
-    private bool    _isDead;
-    private bool    _startJump;
-    private IGun    _weapon;
-    private NetworkObject _networkObject;
+    private bool                    _isOnAir;
+    private bool                    _isDead;
+    private bool                    _startJump;
+    private IGun                    _weapon;
+    private NetworkObject           _networkObject;
+    private UI                      _UI;
+    private NetworkVariable<int>    _hp;
 
     private CharacterController _characterController;
 
@@ -51,15 +53,30 @@ public class Character : MonoBehaviour, ICharacter
 
     private void Awake()
     {
+
+        _hp = new NetworkVariable<int>();
+        if (NetworkManager.Singleton.IsServer)
+        {
+            _hp.Value = _maxHealth;
+        }
         _networkObject = GetComponent<NetworkObject>();
-        HP = _hp;
-        _hpTextMeshPro.text = HP.ToString();
+
+        _hpTextMeshPro.text = _hp.Value.ToString();
         _xRotation = 0;
         _characterController = GetComponent<CharacterController>();
         _weapon = GetComponentInChildren<IGun>();
         Cursor.lockState = CursorLockMode.Locked;
+        _UI = FindFirstObjectByType<UI>();
 
     }
+
+    private void Start()
+    {
+        _UI.UpdateHPClientRpc(_hp.Value);
+        _UI.UpdateAmmunitionClientRpc(_weapon.CurrentAmmunition, _weapon.TotalAmmunition);
+    }
+
+
 
     private void Update()
     {
@@ -73,13 +90,14 @@ public class Character : MonoBehaviour, ICharacter
 
     private void FixedUpdate()
     {
-        Collider[] collider = Physics.OverlapSphere(_floorDetectorPos.position, _floorDectecorRadius, _floorDetectionLayerMask);
-        if(collider.Length == 0)
-            _isOnAir = true;
-        else
-            _isOnAir = false;
-        UpdateVelocity();
-        UpdatePosition();
+
+            Collider[] collider = Physics.OverlapSphere(_floorDetectorPos.position, _floorDectecorRadius, _floorDetectionLayerMask);
+            if (collider.Length == 0)
+                _isOnAir = true;
+            else
+                _isOnAir = false;
+            UpdateVelocity();
+            UpdatePosition(); 
     }
 
     private void UpdateRotation()
@@ -108,18 +126,19 @@ public class Character : MonoBehaviour, ICharacter
         _input.x = Input.GetAxis("Strafe");
         if (Input.GetButton("Jump") && !_isOnAir)
         {
-            Jump();
+            JumpServerRpc();
         }
-        if (Input.GetButtonUp("Fire1"))
+        if (Input.GetButtonUp("Fire1") && _networkObject.IsLocalPlayer)
         {
             _weapon.Shoot(transform.position,transform.forward);
+            _UI.UpdateAmmunitionClientRpc(_weapon.CurrentAmmunition, _weapon.TotalAmmunition);
         }
 
     }
 
-   
 
-    private void Jump()
+    [ServerRpc]
+    private void JumpServerRpc()
     {
         //_velocity.y += _accelerationJumpForce
         _startJump = true;
@@ -161,20 +180,33 @@ public class Character : MonoBehaviour, ICharacter
 
     public void ReceiveDamage(int damage)
     {
-        if(HP > 0)
+        if (_hp.Value > 0)
         {
-            HP -= damage;
+            _hp.Value -= damage;
             //_animator.Play("Hit");
             CheckDeath();
             //_animator.SetBool("Hit", false);
-            _hpTextMeshPro.text = HP.ToString();
+            _hpTextMeshPro.text = _hp.Value.ToString();
+            _UI.UpdateHPClientRpc(_hp.Value);
         }
-        
     }
 
+    [ServerRpc]
+    private void ReceiveDamageServerRpc(int damage)
+    {
+        if(_hp.Value > 0)
+        {
+            _hp.Value -= damage;
+            //_animator.Play("Hit");
+            CheckDeath();
+            //_animator.SetBool("Hit", false);
+            _hpTextMeshPro.text = _hp.Value.ToString();
+            _UI.UpdateHPClientRpc(_hp.Value);
+        }
+    }
     private void CheckDeath()
     {
-        if (HP <= 0)
+        if (_hp.Value <= 0)
         {
             _isDead = true;
             _hpTextMeshPro.text = "Dead";

@@ -17,12 +17,24 @@ using UnityEditor;
 #if UNITY_STANDALONE_WIN
 using System.Runtime.InteropServices;
 using System.Diagnostics;
+using Unity.VisualScripting;
 #endif
 
 
 public class NetworkSetup : MonoBehaviour
 {
-    private bool isServer = false;
+
+    [SerializeField] private Character[] _character;
+    [SerializeField] private Transform[] _spawnPoints;
+
+    private bool _isServer;
+    private int  _playerCount;
+    private void Awake()
+    {
+        _isServer = false;
+        _playerCount = 0;
+    }
+
     IEnumerator Start()
     {
         // Parse command line arguments
@@ -32,10 +44,10 @@ public class NetworkSetup : MonoBehaviour
             if (args[i] == "--server")
             {
                 // --server found, this should be a server application
-                isServer = true;
+                _isServer = true;
             }
         }
-        if (isServer)
+        if (_isServer)
             yield return StartAsServerCR();
         else
             yield return StartAsClientCR();
@@ -51,6 +63,12 @@ public class NetworkSetup : MonoBehaviour
         transport.enabled = true;
         // Wait a frame for setups to be done
         yield return null;
+
+
+        NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
+        NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnected;
+
+
         if (networkManager.StartServer())
         {
             Debug.Log($"Serving on port {transport.ConnectionData.Port}...");
@@ -60,6 +78,42 @@ public class NetworkSetup : MonoBehaviour
             Debug.LogError($"Failed to serve on port {transport.ConnectionData.Port}...");
         }
     }
+
+
+
+    private void OnClientConnected(ulong clientId)
+    {
+        Debug.Log($"Player {clientId} connected, prefab index = {_playerCount}!");
+        // Check a free spot for this player
+        var spawnPos = Vector3.zero;
+        var currentPlayers = FindObjectsOfType<Character>();
+        foreach (var playerSpawnLocation in _spawnPoints)
+        {
+            var closestDist = float.MaxValue;
+            foreach (var player in currentPlayers)
+            {
+                float d = Vector3.Distance(player.transform.position, playerSpawnLocation.position);
+                closestDist = Mathf.Min(closestDist, d);
+            }
+            if (closestDist > 20)
+            {
+                spawnPos = playerSpawnLocation.position;
+                break;
+            }
+        }
+        // Spawn player object
+        var spawnedObject = Instantiate(_character[_playerCount], spawnPos, Quaternion.identity);
+        var prefabNetworkObject = spawnedObject.GetComponent<NetworkObject>();
+        prefabNetworkObject.SpawnAsPlayerObject(clientId, true);
+        prefabNetworkObject.ChangeOwnership(clientId);
+        _playerCount = (_playerCount+ 1) % _character.Length;
+    }
+    private void OnClientDisconnected(ulong clientId)
+    {
+        Debug.Log($"Player {clientId} disconnected!");
+    }
+
+
     IEnumerator StartAsClientCR()
     {
         SetWindowTitle("BitBullet - Client");
