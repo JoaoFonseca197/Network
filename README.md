@@ -42,6 +42,11 @@ This is the diagram of the network architecture
 
 ![Network](ReportImages/Network.png)
 
+## Webgraphy
 
+All the information used was from the class "Sistemas de Redes para Jogos" that was 
+lectured by professor **Diogo Andrade**.
+
+- [Video Classes](https://www.youtube.com/watch?v=3LdnSbCcrd0&list=PLheBz0T_uVP1ha7-M1p6ToCzSZEogulxJ)
 
 
