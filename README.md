@@ -38,7 +38,9 @@ TransformNetwork.
 
 ## Network architecture diagram
 
-![Network](../../Downloads/Network.png)
+This is the diagram of the network architecture
+
+![Network](ReportImages/Network.png)
 
 
 
