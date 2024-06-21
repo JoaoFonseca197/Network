@@ -86,31 +86,9 @@ public class NetworkSetup : MonoBehaviour
     {
         Debug.Log($"Player {clientId} connected, prefab index = {_playerCount}!");
         // Check a free spot for this player
-        _textMeshProUGUI.text = "Before Finding Object";
-        var currentPlayers = FindObjectsOfType<Character>();
-        _textMeshProUGUI.text = "Afater Finding Obbject";
-        //foreach (var playerSpawnLocation in _spawnPoints)
-        //{
-        //    var closestDist = float.MaxValue;
-        //    foreach (var player in currentPlayers)
-        //    {
-        //        float d = Vector3.Distance(player.transform.position, playerSpawnLocation.position);
-        //        closestDist = Mathf.Min(closestDist, d);
-        //    }
-        //    if (closestDist > 20)
-        //    {
-        //        spawnPos = playerSpawnLocation.position;
-        //        break;
-        //    }
-        //}
-        _textMeshProUGUI.text = "Error in looking for spawn";
-        //Spawn player object
+        
         var spawnedObject = Instantiate(_character[_playerCount], Vector3.zero, Quaternion.identity);
-        _textMeshProUGUI.text = "E1";
 
-        var prefabNetworkObject = spawnedObject.GetComponent<NetworkObject>();
-        prefabNetworkObject.SpawnAsPlayerObject(clientId, true);
-        prefabNetworkObject.ChangeOwnership(clientId);
 
         
         
