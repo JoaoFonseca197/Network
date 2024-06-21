@@ -1,6 +1,4 @@
 using UnityEngine;
-using Cinemachine;
-using System;
 using TMPro;
 using Unity.Netcode;
 
@@ -41,6 +39,7 @@ public class Character : NetworkBehaviour, ICharacter
     private NetworkObject           _networkObject;
     private UI                      _UI;
     private NetworkVariable<int>    _hp;
+    private NetworkVariable<Transform> _networkCamera;
 
     private CharacterController _characterController;
 
@@ -53,13 +52,18 @@ public class Character : NetworkBehaviour, ICharacter
 
     private void Awake()
     {
-
+        _networkCamera = new NetworkVariable<Transform>();
         _hp = new NetworkVariable<int>();
         if (NetworkManager.Singleton.IsServer)
         {
             _hp.Value = _maxHealth;
+            _networkCamera.Value = _camera;
         }
+
         _networkObject = GetComponent<NetworkObject>();
+     
+        _camera.GetComponentInChildren<Camera>().enabled = true;
+        
 
         _hpTextMeshPro.text = _hp.Value.ToString();
         _xRotation = 0;
@@ -82,32 +86,38 @@ public class Character : NetworkBehaviour, ICharacter
     {
         if(_networkObject.IsLocalPlayer)
         {
-            GetInput();
-            UpdateHead();
-            UpdateRotation();
+            GetInputServerRPC();
+            UpdateHeadServerRPC();
+            UpdateRotationServerRPC();
         }
+
     }
 
     private void FixedUpdate()
     {
-
+        if( !_networkObject.IsLocalPlayer) 
+        {
             Collider[] collider = Physics.OverlapSphere(_floorDetectorPos.position, _floorDectecorRadius, _floorDetectionLayerMask);
             if (collider.Length == 0)
                 _isOnAir = true;
             else
                 _isOnAir = false;
             UpdateVelocity();
-            UpdatePosition(); 
+            UpdatePosition();
+        }
+            
     }
 
-    private void UpdateRotation()
+    [ServerRpc]
+    private void UpdateRotationServerRPC()
     {
         float rotation = Input.GetAxis("Mouse X") * _rotationVelocityFactor;
+        
 
         transform.Rotate(0f, rotation, 0f);
     }
-
-    private void UpdateHead()
+    [ServerRpc]
+    private void UpdateHeadServerRPC()
     {
         //Vector3 headRotation = _camera.localEulerAngles;
         float input;
@@ -118,15 +128,17 @@ public class Character : NetworkBehaviour, ICharacter
 
         _xRotation = Mathf.Clamp(_xRotation, -90f,90f);
 
-        _camera.localRotation = Quaternion.Euler(_xRotation,0,0); ;
+        _networkCamera.Value.localRotation = Quaternion.Euler(_xRotation,0,0); ;
     }
-    private void GetInput()
+
+    [ServerRpc]
+    private void GetInputServerRPC()
     {
         _input.y = Input.GetAxis("Forward");
         _input.x = Input.GetAxis("Strafe");
         if (Input.GetButton("Jump") && !_isOnAir)
         {
-            JumpServerRpc();
+            Jump();
         }
         if (Input.GetButtonUp("Fire1") && _networkObject.IsLocalPlayer)
         {
@@ -137,8 +149,8 @@ public class Character : NetworkBehaviour, ICharacter
     }
 
 
-    [ServerRpc]
-    private void JumpServerRpc()
+    
+    private void Jump()
     {
         //_velocity.y += _accelerationJumpForce
         _startJump = true;
@@ -167,9 +179,6 @@ public class Character : NetworkBehaviour, ICharacter
             if (_velocity.y > 0)
                 _velocity.y -= 0.1f;
         }
-
-
-               
     }
 
     private void UpdatePosition()

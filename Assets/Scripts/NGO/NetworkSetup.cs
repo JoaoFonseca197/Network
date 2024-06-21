@@ -18,6 +18,7 @@ using UnityEditor;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using Unity.VisualScripting;
+using TMPro;
 #endif
 
 
@@ -26,6 +27,7 @@ public class NetworkSetup : MonoBehaviour
 
     [SerializeField] private Character[] _character;
     [SerializeField] private Transform[] _spawnPoints;
+    [SerializeField] private TextMeshProUGUI _textMeshProUGUI;
 
     private bool _isServer;
     private int  _playerCount;
@@ -86,26 +88,28 @@ public class NetworkSetup : MonoBehaviour
         Debug.Log($"Player {clientId} connected, prefab index = {_playerCount}!");
         // Check a free spot for this player
         var spawnPos = Vector3.zero;
-        var currentPlayers = FindObjectsOfType<Character>();
-        foreach (var playerSpawnLocation in _spawnPoints)
-        {
-            var closestDist = float.MaxValue;
-            foreach (var player in currentPlayers)
-            {
-                float d = Vector3.Distance(player.transform.position, playerSpawnLocation.position);
-                closestDist = Mathf.Min(closestDist, d);
-            }
-            if (closestDist > 20)
-            {
-                spawnPos = playerSpawnLocation.position;
-                break;
-            }
-        }
+        //var currentPlayers = FindObjectsOfType<Character>();
+        //foreach (var playerSpawnLocation in _spawnPoints)
+        //{
+        //    var closestDist = float.MaxValue;
+        //    foreach (var player in currentPlayers)
+        //    {
+        //        float d = Vector3.Distance(player.transform.position, playerSpawnLocation.position);
+        //        closestDist = Mathf.Min(closestDist, d);
+        //    }
+        //    if (closestDist > 20)
+        //    {
+        //        spawnPos = playerSpawnLocation.position;
+        //        break;
+        //    }
+        //}
         // Spawn player object
         var spawnedObject = Instantiate(_character[_playerCount], spawnPos, Quaternion.identity);
         var prefabNetworkObject = spawnedObject.GetComponent<NetworkObject>();
         prefabNetworkObject.SpawnAsPlayerObject(clientId, true);
         prefabNetworkObject.ChangeOwnership(clientId);
+
+        _textMeshProUGUI.text = _character[_playerCount].ToString();
         _playerCount = (_playerCount+ 1) % _character.Length;
     }
     private void OnClientDisconnected(ulong clientId)

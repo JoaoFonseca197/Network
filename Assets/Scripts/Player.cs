@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Player : MonoBehaviour , IPlayer
+public class Player : IPlayer
 {
     public int ID {  get;  set; }
 
