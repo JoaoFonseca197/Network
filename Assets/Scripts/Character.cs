@@ -84,12 +84,10 @@ public class Character : NetworkBehaviour, ICharacter
 
     private void Update()
     {
-        if(_networkObject.IsLocalPlayer)
-        {
-            GetInputServerRPC();
-            UpdateHeadServerRPC();
-            UpdateRotationServerRPC();
-        }
+
+            GetInput();
+            UpdateHead();
+            UpdateRotation();
 
     }
 
@@ -108,16 +106,15 @@ public class Character : NetworkBehaviour, ICharacter
             
     }
 
-    [ServerRpc]
-    private void UpdateRotationServerRPC()
+    private void UpdateRotation()
     {
         float rotation = Input.GetAxis("Mouse X") * _rotationVelocityFactor;
         
 
         transform.Rotate(0f, rotation, 0f);
     }
-    [ServerRpc]
-    private void UpdateHeadServerRPC()
+
+    private void UpdateHead()
     {
         //Vector3 headRotation = _camera.localEulerAngles;
         float input;
@@ -131,8 +128,7 @@ public class Character : NetworkBehaviour, ICharacter
         _networkCamera.Value.localRotation = Quaternion.Euler(_xRotation,0,0); ;
     }
 
-    [ServerRpc]
-    private void GetInputServerRPC()
+    private void GetInput()
     {
         _input.y = Input.GetAxis("Forward");
         _input.x = Input.GetAxis("Strafe");

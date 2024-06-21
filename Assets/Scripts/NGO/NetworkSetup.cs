@@ -6,6 +6,7 @@ using System;
 using Debug = UnityEngine.Debug;
 using System.IO;
 using System.Linq;
+using TMPro;
 
 
 
@@ -18,7 +19,6 @@ using UnityEditor;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using Unity.VisualScripting;
-using TMPro;
 #endif
 
 
@@ -43,7 +43,7 @@ public class NetworkSetup : MonoBehaviour
         string[] args = System.Environment.GetCommandLineArgs();
         for (int i = 0; i < args.Length; i++)
         {
-            if (args[i] == "--server")
+            if (args[i] == "C:\\Program Files\\Unity\\Hub\\Editor\\2022.3.23f1\\Editor\\Unity.exe")
             {
                 // --server found, this should be a server application
                 _isServer = true;
@@ -70,7 +70,6 @@ public class NetworkSetup : MonoBehaviour
         NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
         NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnected;
 
-
         if (networkManager.StartServer())
         {
             Debug.Log($"Serving on port {transport.ConnectionData.Port}...");
@@ -87,8 +86,9 @@ public class NetworkSetup : MonoBehaviour
     {
         Debug.Log($"Player {clientId} connected, prefab index = {_playerCount}!");
         // Check a free spot for this player
-        var spawnPos = Vector3.zero;
-        //var currentPlayers = FindObjectsOfType<Character>();
+        _textMeshProUGUI.text = "Before Finding Object";
+        var currentPlayers = FindObjectsOfType<Character>();
+        _textMeshProUGUI.text = "Afater Finding Obbject";
         //foreach (var playerSpawnLocation in _spawnPoints)
         //{
         //    var closestDist = float.MaxValue;
@@ -103,13 +103,19 @@ public class NetworkSetup : MonoBehaviour
         //        break;
         //    }
         //}
-        // Spawn player object
-        var spawnedObject = Instantiate(_character[_playerCount], spawnPos, Quaternion.identity);
+        _textMeshProUGUI.text = "Error in looking for spawn";
+        //Spawn player object
+        var spawnedObject = Instantiate(_character[_playerCount], Vector3.zero, Quaternion.identity);
+        _textMeshProUGUI.text = "E1";
+
         var prefabNetworkObject = spawnedObject.GetComponent<NetworkObject>();
         prefabNetworkObject.SpawnAsPlayerObject(clientId, true);
         prefabNetworkObject.ChangeOwnership(clientId);
 
-        _textMeshProUGUI.text = _character[_playerCount].ToString();
+        
+        
+
+        _textMeshProUGUI.text = "Spawned Character";
         _playerCount = (_playerCount+ 1) % _character.Length;
     }
     private void OnClientDisconnected(ulong clientId)
