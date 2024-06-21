@@ -694,7 +694,7 @@ GameObject:
   - component: {fileID: 8270324448143456564}
   - component: {fileID: 5705920111624426736}
   - component: {fileID: 359799943521276432}
-  - component: {fileID: 5748985504966704271}
+  - component: {fileID: -2117380038442307458}
   m_Layer: 6
   m_Name: Player
   m_TagString: Untagged
@@ -824,7 +824,7 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &5748985504966704271
+--- !u!114 &-2117380038442307458
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -840,12 +840,12 @@ MonoBehaviour:
   SyncPositionX: 1
   SyncPositionY: 1
   SyncPositionZ: 1
-  SyncRotAngleX: 0
+  SyncRotAngleX: 1
   SyncRotAngleY: 1
-  SyncRotAngleZ: 0
-  SyncScaleX: 0
-  SyncScaleY: 0
-  SyncScaleZ: 0
+  SyncRotAngleZ: 1
+  SyncScaleX: 1
+  SyncScaleY: 1
+  SyncScaleZ: 1
   PositionThreshold: 0.001
   RotAngleThreshold: 0.01
   ScaleThreshold: 0.01

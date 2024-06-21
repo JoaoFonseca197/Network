@@ -91,6 +91,8 @@ public class NetworkSetup : MonoBehaviour
 
 
         
+        NetworkObject nto = spawnedObject.GetComponent<NetworkObject>();
+        nto.SpawnAsPlayerObject(clientId);
         
 
         _textMeshProUGUI.text = "Spawned Character";
