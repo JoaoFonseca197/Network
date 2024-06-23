@@ -668,8 +668,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3837f5f64d1d71a408a9cb23800f78f7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _accelerationForwardForce: 10
-  _accelerationStrafeForce: 10
+  _accelerationForwardForce: 0.1
+  _accelerationStrafeForce: 0.1
   _accelerationJumpForce: 1
   _maxForwardVelocity: 0.5
   _maxBackwardVelocity: -0.5
@@ -747,7 +747,6 @@ GameObject:
   - component: {fileID: 4220716882990365202}
   - component: {fileID: 5295843596258503838}
   - component: {fileID: 4216169646573730598}
-  - component: {fileID: 8696133543820632672}
   - component: {fileID: 8801394891652011011}
   m_Layer: 6
   m_Name: Main Camera
@@ -866,40 +865,6 @@ MonoBehaviour:
     mipBias: 0
     varianceClampScale: 0.9
     contrastAdaptiveSharpening: 0
---- !u!114 &8696133543820632672
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8676096482988696041}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 72ece51f2901e7445ab60da3685d6b5f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_ShowDebugText: 0
-  m_ShowCameraFrustum: 1
-  m_IgnoreTimeScale: 0
-  m_WorldUpOverride: {fileID: 0}
-  m_UpdateMethod: 2
-  m_BlendUpdateMethod: 1
-  m_DefaultBlend:
-    m_Style: 1
-    m_Time: 2
-    m_CustomCurve:
-      serializedVersion: 2
-      m_Curve: []
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-  m_CustomBlends: {fileID: 0}
-  m_CameraCutEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_CameraActivatedEvent:
-    m_PersistentCalls:
-      m_Calls: []
 --- !u!114 &8801394891652011011
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -907,7 +872,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8676096482988696041}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
   m_Name: 
@@ -917,7 +882,7 @@ MonoBehaviour:
   SyncPositionY: 0
   SyncPositionZ: 0
   SyncRotAngleX: 1
-  SyncRotAngleY: 0
+  SyncRotAngleY: 1
   SyncRotAngleZ: 0
   SyncScaleX: 0
   SyncScaleY: 0
