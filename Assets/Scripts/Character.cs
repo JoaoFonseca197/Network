@@ -1,6 +1,7 @@
 using UnityEngine;
 using TMPro;
 using Unity.Netcode;
+using Cinemachine;
 
 
 public class Character : NetworkBehaviour, ICharacter
@@ -22,7 +23,7 @@ public class Character : NetworkBehaviour, ICharacter
     [SerializeField] private float                      _maxHeadUpAngle;
     [SerializeField] private float                      _gravityForce;
     [SerializeField] private float                      _dragForce;
-    [SerializeField] private Transform                  _camera;
+    [SerializeField] private Camera                     _camera;
 
     [SerializeField] private int                        _maxHealth;
     [SerializeField] private TextMeshPro                _hpTextMeshPro;
@@ -33,15 +34,15 @@ public class Character : NetworkBehaviour, ICharacter
     private Vector2 _input;
     [SerializeField] private Vector3 _velocity;
 
-    private bool                    _isOnAir;
-    private bool                    _isDead;
-    private bool                    _startJump;
-    private IGun                    _weapon;
-    private NetworkObject           _networkObject;
-    private UI                      _UI;
-    private NetworkVariable<int>    _hp;
-    //private NetworkVariable<Transform> _networkCamera;
-    private NetworkVariable<Vector2>    _networkInput;
+    private bool                            _isOnAir;
+    private bool                            _isDead;
+    private bool                            _startJump;
+    private IGun                            _weapon;
+    private NetworkObject                   _networkObject;
+    private UI                              _UI;
+    private NetworkVariable<int>            _hp;
+    //private NetworkVariable<Transform>    _networkCamera;
+    private NetworkVariable<Vector2>        _networkInput;
 
     private CharacterController _characterController;
 
@@ -61,7 +62,7 @@ public class Character : NetworkBehaviour, ICharacter
 
 
 
-
+        _camera = GetComponentInChildren<Camera>();
 
 
         _hpTextMeshPro.text = _hp.Value.ToString();
@@ -75,7 +76,14 @@ public class Character : NetworkBehaviour, ICharacter
 
     private void Start()
     {
-
+        if(_networkObject.IsOwner)
+        {
+            _camera.depth = 1;
+        }
+        else
+        {
+            _camera.depth = 0;
+        }
         if (NetworkManager.Singleton.IsServer)
         {
             _hp.Value = _maxHealth;
@@ -92,21 +100,13 @@ public class Character : NetworkBehaviour, ICharacter
     {
         if (_networkObject.IsLocalPlayer)
         {
+            UpdateLocalRotation();
             UpdateLocalHead();
             GetlocalInput();
         }
-
-        if (NetworkManager.Singleton.IsServer)
-            UpdateServer();
-
-
     }
 
-    private void UpdateServer()
-    {
-        
-        UpdateRotation();
-    }
+
 
     private void FixedUpdate()
     {
@@ -122,12 +122,16 @@ public class Character : NetworkBehaviour, ICharacter
         }
 
     }
-
-    private void UpdateRotation()
+    private void UpdateLocalRotation()
     {
         float rotation = Input.GetAxis("Mouse X") * _rotationVelocityFactor;
-        
 
+        UpdateRotationServerRpc(rotation);
+    }
+
+    [ServerRpc]
+    private void UpdateRotationServerRpc(float rotation)
+    {
         transform.Rotate(0f, rotation, 0f);
     }
     private void UpdateLocalHead()
@@ -148,10 +152,8 @@ public class Character : NetworkBehaviour, ICharacter
 
         _xRotation = Mathf.Clamp(_xRotation, -90f, 90f);
 
-        //_networkCamera.Value.localRotation = Quaternion.Euler(_xRotation, 0, 0);
+        _camera.transform.rotation = Quaternion.Euler(_xRotation, 0, 0);
     }
-
-
 
     private void GetlocalInput()
     {
@@ -159,7 +161,7 @@ public class Character : NetworkBehaviour, ICharacter
         _input.y = Input.GetAxis("Forward");
         _input.x = Input.GetAxis("Strafe");
 
-        if(oldInput != _input) 
+        if (oldInput != _input)
             UpdateInputServerRpc(_input);
 
         if (Input.GetButton("Jump") && !_isOnAir)
@@ -170,11 +172,15 @@ public class Character : NetworkBehaviour, ICharacter
 
         if (Input.GetButtonUp("Fire1") && _networkObject.IsLocalPlayer)
         {
-            _weapon.Shoot(transform.position,transform.forward);
+            _weapon.Shoot(transform.position, transform.forward);
             _UI.UpdateAmmunitionClientRpc(_weapon.CurrentAmmunition, _weapon.TotalAmmunition);
         }
 
     }
+
+
+
+
     [ServerRpc]
     private void UpdateInputServerRpc(Vector2 input)
     {
@@ -205,12 +211,12 @@ public class Character : NetworkBehaviour, ICharacter
 
         if (_isOnAir)
         {
-            _velocity.y += _gravityForce * Time.deltaTime;
+            //_velocity.y += _gravityForce * Time.deltaTime;
 
         }
         else
         {
-                _velocity.y = -0.1f;
+                //_velocity.y = -0.1f;
 
 
         }

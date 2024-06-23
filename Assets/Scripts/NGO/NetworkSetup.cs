@@ -43,7 +43,7 @@ public class NetworkSetup : MonoBehaviour
         string[] args = System.Environment.GetCommandLineArgs();
         for (int i = 0; i < args.Length; i++)
         {
-            if (args[i] == "C:\\Program Files\\Unity\\Hub\\Editor\\2022.3.23f1\\Editor\\Unity.exe")
+            if (args[i] == "--server")
             {
                 // --server found, this should be a server application
                 _isServer = true;
@@ -80,8 +80,6 @@ public class NetworkSetup : MonoBehaviour
         }
     }
 
-
-
     private void OnClientConnected(ulong clientId)
     {
         Debug.Log($"Player {clientId} connected, prefab index = {_playerCount}!");
@@ -92,7 +90,7 @@ public class NetworkSetup : MonoBehaviour
 
         
         NetworkObject nto = spawnedObject.GetComponent<NetworkObject>();
-        nto.Spawn();
+        nto.SpawnAsPlayerObject(clientId);
 
         _textMeshProUGUI.text = "Spawned Character";
         _playerCount = (_playerCount+ 1) % _character.Length;
