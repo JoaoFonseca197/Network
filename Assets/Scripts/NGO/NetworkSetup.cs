@@ -87,13 +87,12 @@ public class NetworkSetup : MonoBehaviour
         Debug.Log($"Player {clientId} connected, prefab index = {_playerCount}!");
         // Check a free spot for this player
         
-        var spawnedObject = Instantiate(_character[_playerCount], Vector3.zero, Quaternion.identity);
+        var spawnedObject = Instantiate(_character[_playerCount], _spawnPoints[0].position, Quaternion.identity);
 
 
         
         NetworkObject nto = spawnedObject.GetComponent<NetworkObject>();
-        nto.SpawnAsPlayerObject(clientId);
-        
+        nto.Spawn();
 
         _textMeshProUGUI.text = "Spawned Character";
         _playerCount = (_playerCount+ 1) % _character.Length;
