@@ -158,8 +158,11 @@ public class Character : NetworkBehaviour, ICharacter
     private void GetlocalInput()
     {
         Vector2 oldInput = _input;
-        _input.y = Input.GetAxis("Forward");
-        _input.x = Input.GetAxis("Strafe");
+        if(_networkObject.IsLocalPlayer)
+        {
+            _input.x = Input.GetAxis("Strafe");
+            _input.y = Input.GetAxis("Forward");
+        }
 
         if (oldInput != _input)
             UpdateInputServerRpc(_input);
@@ -226,7 +229,7 @@ public class Character : NetworkBehaviour, ICharacter
     {
         Vector3 movement = _velocity;
         _characterController.Move(movement);
-        transform.position += _velocity;
+        //transform.position += _velocity;
     }
 
     public void ReceiveDamage(int damage)
