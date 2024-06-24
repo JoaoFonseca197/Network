@@ -207,12 +207,12 @@ public class Character : NetworkBehaviour, ICharacter
 
         if (_isOnAir)
         {
-            //_velocity.y += _gravityForce * Time.deltaTime;
+            _velocity.y += _gravityForce * Time.deltaTime;
 
         }
         else
         {
-                //_velocity.y = -0.1f;
+                _velocity.y = -0.1f;
 
 
         }

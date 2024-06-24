@@ -1,17 +1,17 @@
-using System.Collections;
-using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.Windows;
 
 public class CameraController : NetworkBehaviour
 {
-    [SerializeField] Camera _camera;
+    [SerializeField] GameObject     _cameraGameObject;
+    [SerializeField] Camera         _camera;
     // Start is called before the first frame update
     private NetworkVariable<float> _networkXRotation;
     float _xRotation; 
     void Awake()
     {
+
+
         _camera = GetComponentInChildren<Camera>();
 
         _xRotation = _camera.transform.rotation.x;
@@ -25,6 +25,17 @@ public class CameraController : NetworkBehaviour
         if (NetworkManager.Singleton.IsServer)
         {
             _networkXRotation.Value = _xRotation;
+        }
+
+
+        if (IsOwner)
+        {
+            _camera.enabled = true;
+            _camera.depth = 1;
+        }
+        else
+        {
+            _camera.depth = 0;
         }
     }
     [ServerRpc]
