@@ -23,7 +23,7 @@ public class Character : NetworkBehaviour, ICharacter
     [SerializeField] private float                      _maxHeadUpAngle;
     [SerializeField] private float                      _gravityForce;
     [SerializeField] private float                      _dragForce;
-    [SerializeField] private Camera                     _camera;
+    [SerializeField] private CameraController           _cameraController;
 
     [SerializeField] private int                        _maxHealth;
     [SerializeField] private TextMeshPro                _hpTextMeshPro;
@@ -41,12 +41,10 @@ public class Character : NetworkBehaviour, ICharacter
     private NetworkObject                   _networkObject;
     private UI                              _UI;
     private NetworkVariable<int>            _hp;
-    //private NetworkVariable<Transform>    _networkCamera;
     private NetworkVariable<Vector2>        _networkInput;
 
     private CharacterController _characterController;
 
-    private float _xRotation;
 
     public int HP { get; set; }
 
@@ -57,16 +55,14 @@ public class Character : NetworkBehaviour, ICharacter
     {
         _networkObject = GetComponent<NetworkObject>();
         _networkInput = new NetworkVariable<Vector2>();
-        //_networkCamera = new NetworkVariable<Transform>();
         _hp = new NetworkVariable<int>();
 
 
 
-        _camera = GetComponentInChildren<Camera>();
+        _cameraController = GetComponentInChildren<CameraController>();
 
 
         _hpTextMeshPro.text = _hp.Value.ToString();
-        _xRotation = 0;
         _characterController = GetComponent<CharacterController>();
         _weapon = GetComponentInChildren<IGun>();
         Cursor.lockState = CursorLockMode.Locked;
@@ -76,18 +72,17 @@ public class Character : NetworkBehaviour, ICharacter
 
     private void Start()
     {
-        if(NetworkManager.Singleton.IsClient && _networkObject.IsLocalPlayer)
-        {
-            _camera.depth = 1;
-        }
-        else
-        {
-            _camera.depth = 0;
-        }
+        //if(NetworkManager.Singleton.IsClient && _networkObject.IsLocalPlayer)
+        //{
+        //    _cameraController.depth = 1;
+        //}
+        //else
+        //{
+        //    _cameraController.depth = 0;
+        //}
         if (NetworkManager.Singleton.IsServer)
         {
             _hp.Value = _maxHealth;
-            //_networkCamera.Value = _camera;
             _networkInput.Value = _input;
         }
         _UI.UpdateHPClientRpc(_hp.Value);
@@ -139,21 +134,21 @@ public class Character : NetworkBehaviour, ICharacter
         float input;
 
         input = Input.GetAxis("Mouse Y") * _rotationVelocityFactor;
+        Debug.Log(input);
 
-        UpdateHeadServerRpc(input);
-
+        _cameraController.RotateInXAxisServerRpc(input);
     }
 
-    [ServerRpc]
-    private void UpdateHeadServerRpc(float input)
-    {
+    //[ServerRpc]
+    //private void UpdateHeadServerRpc(float input)
+    //{
 
-        _xRotation -= input;
+    //    _xRotation -= input;
 
-        _xRotation = Mathf.Clamp(_xRotation, -90f, 90f);
+    //    _xRotation = Mathf.Clamp(_xRotation, -90f, 90f);
 
-        _camera.transform.rotation = Quaternion.Euler(_xRotation, 0, 0);
-    }
+    //    _cameraController.transform.rotation = Quaternion.Euler(_xRotation, 0, 0);
+    //}
 
     private void GetlocalInput()
     {
@@ -198,7 +193,6 @@ public class Character : NetworkBehaviour, ICharacter
     }
     private void UpdateVelocity()
     {
-        Debug.Log("This is input =" + _networkInput.Value);
         float ForceJump =0;
         if (_startJump)
         {
@@ -208,18 +202,17 @@ public class Character : NetworkBehaviour, ICharacter
         else
             ForceJump = 0;
         _velocity =  _velocity + _networkInput.Value.y * _accelerationForwardForce * transform.forward + _networkInput.Value.x * _accelerationStrafeForce * transform.right + ForceJump * Vector3.up;
-        Debug.Log("this is velocity = "+_velocity);
         if(!_isOnAir)
             _velocity = _velocity * (1 - Time.fixedDeltaTime * _dragForce);
 
         if (_isOnAir)
         {
-            _velocity.y += _gravityForce * Time.deltaTime;
+            //_velocity.y += _gravityForce * Time.deltaTime;
 
         }
         else
         {
-                _velocity.y = -0.1f;
+                //_velocity.y = -0.1f;
 
 
         }
