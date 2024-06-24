@@ -50,7 +50,6 @@ public class Gun : NetworkBehaviour , IGun
 
     private void Reload()
     {
-        _currentAmmunition = _gunData.magAmmunition;
         if (_totalAmmunition == 0)
             return;
         else if (_totalAmmunition > 0 && _totalAmmunition < _gunData.magAmmunition)
