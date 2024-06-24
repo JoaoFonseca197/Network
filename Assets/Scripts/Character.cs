@@ -76,7 +76,7 @@ public class Character : NetworkBehaviour, ICharacter
 
     private void Start()
     {
-        if(_networkObject.IsOwner)
+        if(NetworkManager.Singleton.IsClient && _networkObject.IsLocalPlayer)
         {
             _camera.depth = 1;
         }
