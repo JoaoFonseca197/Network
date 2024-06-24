@@ -53,7 +53,6 @@ public class Character : NetworkBehaviour, ICharacter
 
     public bool IsDead => _isDead;
 
-
     private void Awake()
     {
         _networkObject = GetComponent<NetworkObject>();
@@ -157,7 +156,7 @@ public class Character : NetworkBehaviour, ICharacter
         if (Input.GetButtonUp("Fire1"))
         {
             _weapon.Shoot(transform.position, transform.forward);
-            _UI.UpdateAmmunitionClientRpc(_weapon.CurrentAmmunition, _weapon.TotalAmmunition);
+            _UI.UpdateAmmunitionClientParams(_weapon.CurrentAmmunition, _weapon.TotalAmmunition,_networkObject.OwnerClientId);
         }
 
     }

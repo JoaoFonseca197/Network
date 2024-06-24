@@ -17,11 +17,7 @@ public class UI : NetworkBehaviour
         _clientRpcParams = new ClientRpcParams();
     }
 
-    public void UpdateLocalHp(int currentHP)
-    {
-            _textHP.text = $"{currentHP}/100";
-
-    }
+    
     public void UpdateHPClientParams(int currentHP,ulong clientID)
     {
         _clientRpcParams.Send.TargetClientIds = new ulong[] { clientID };
@@ -34,13 +30,27 @@ public class UI : NetworkBehaviour
     {
         UpdateLocalHp(currentHP);
     }
-
-    public void UpdateAmmunition(int currentAmmunition, int totalAmmunition)
+    public void UpdateLocalHp(int currentHP)
     {
-        _textAmmunition.text = $"{currentAmmunition}/{totalAmmunition}";
+        _textHP.text = $"{currentHP}/100";
+
+    }
+    
+
+    public void UpdateAmmunitionClientParams(int currentAmmunition,int totalAmmunition, ulong clientID)
+    {
+        _clientRpcParams.Send.TargetClientIds = new ulong[] { clientID };
+
+        UpdateAmmunitionClientRpc(currentAmmunition,totalAmmunition, _clientRpcParams);
+
     }
     [ClientRpc]
-    public void UpdateAmmunitionClientRpc(int currentAmmunition, int totalAmmunition)
+    public void UpdateAmmunitionClientRpc(int currentAmmunition, int totalAmmunition, ClientRpcParams clientParams)
+    {
+        UpdateAmmunition(currentAmmunition, totalAmmunition);
+    }
+
+    public void UpdateAmmunition(int currentAmmunition, int totalAmmunition)
     {
         _textAmmunition.text = $"{currentAmmunition}/{totalAmmunition}";
     }

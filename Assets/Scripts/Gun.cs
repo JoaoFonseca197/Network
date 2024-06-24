@@ -6,8 +6,10 @@ public class Gun : NetworkBehaviour , IGun
 {
     [SerializeField] GunData _gunData;
 
+    private UI      _UI;
     private int     _totalAmmunition;
     private int     _currentAmmunition;
+    private NetworkObject _networkObject;
 
     public int CurrentAmmunition => _currentAmmunition;
     public int TotalAmmunition => _totalAmmunition;
@@ -16,8 +18,10 @@ public class Gun : NetworkBehaviour , IGun
 
     private void Awake()
     {
+        _networkObject = GetComponentInParent<NetworkObject>();
         _totalAmmunition = _gunData.totalAmmunition;
         _currentAmmunition = _gunData.magAmmunition;
+        _UI = FindFirstObjectByType<UI>();
     }
 
     public  void Shoot(Vector3 origin,Vector3 direction)
@@ -39,7 +43,9 @@ public class Gun : NetworkBehaviour , IGun
         _currentAmmunition--;
         if (_currentAmmunition == 0)
             Reload();
-        
+
+
+        _UI.UpdateAmmunitionClientParams(_currentAmmunition, _totalAmmunition, _networkObject.OwnerClientId);
     }
 
     private void Reload()
