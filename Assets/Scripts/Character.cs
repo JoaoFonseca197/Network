@@ -2,6 +2,7 @@ using UnityEngine;
 using TMPro;
 using Unity.Netcode;
 using Cinemachine;
+using System;
 
 
 public class Character : NetworkBehaviour, ICharacter
@@ -45,6 +46,8 @@ public class Character : NetworkBehaviour, ICharacter
 
     private CharacterController _characterController;
 
+    public Action<int> UpdateHp;
+    
 
     public int HP { get; set; }
 
@@ -57,7 +60,7 @@ public class Character : NetworkBehaviour, ICharacter
         _networkInput = new NetworkVariable<Vector2>();
         _hp = new NetworkVariable<int>();
 
-
+        HP = _maxHealth;
 
         _cameraController = GetComponentInChildren<CameraController>();
 
@@ -67,7 +70,7 @@ public class Character : NetworkBehaviour, ICharacter
         _weapon = GetComponentInChildren<IGun>();
         Cursor.lockState = CursorLockMode.Locked;
         _UI = FindFirstObjectByType<UI>();
-
+        
     }
 
     private void Start()
@@ -78,8 +81,8 @@ public class Character : NetworkBehaviour, ICharacter
             _hp.Value = _maxHealth;
             _networkInput.Value = _input;
         }
-        _UI.UpdateHPClientRpc(_hp.Value);
-        _UI.UpdateAmmunitionClientRpc(_weapon.CurrentAmmunition, _weapon.TotalAmmunition);
+        _UI.UpdateLocalHp(HP);
+        _UI.UpdateAmmunition(_weapon.CurrentAmmunition, _weapon.TotalAmmunition);
     }
 
 
@@ -151,7 +154,7 @@ public class Character : NetworkBehaviour, ICharacter
         }
 
 
-        if (Input.GetButtonUp("Fire1") && _networkObject.IsLocalPlayer)
+        if (Input.GetButtonUp("Fire1"))
         {
             _weapon.Shoot(transform.position, transform.forward);
             _UI.UpdateAmmunitionClientRpc(_weapon.CurrentAmmunition, _weapon.TotalAmmunition);
@@ -220,7 +223,7 @@ public class Character : NetworkBehaviour, ICharacter
             CheckDeath();
             //_animator.SetBool("Hit", false);
             _hpTextMeshPro.text = _hp.Value.ToString();
-            _UI.UpdateHPClientRpc(_hp.Value);
+            _UI.UpdateLocalHp(_hp.Value);
         }
     }
 

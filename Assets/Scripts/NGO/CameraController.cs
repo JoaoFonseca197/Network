@@ -42,11 +42,7 @@ public class CameraController : NetworkBehaviour
     public void RotateInXAxisServerRpc(float input)
     {
 
-        Debug.Log("this is MouseY = " + input);
-
-
         _xRotation -= input;
-        Debug.Log(_xRotation);
         _xRotation = Mathf.Clamp(_xRotation, -90f, 90f);
 
         _networkXRotation.Value = _xRotation;
