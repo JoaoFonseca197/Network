@@ -649,7 +649,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 771583859
+  GlobalObjectIdHash: 2782644336
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -672,7 +672,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _accelerationForwardForce: 0.1
   _accelerationStrafeForce: 0.1
-  _accelerationJumpForce: 1
+  _accelerationJumpForce: 3
   _maxForwardVelocity: 0.5
   _maxBackwardVelocity: -0.5
   _maxStrafeVelocity: 10
@@ -684,7 +684,7 @@ MonoBehaviour:
   _rotationVelocityFactor: 5
   _minHeadDownAngle: 70
   _maxHeadUpAngle: 80
-  _gravityForce: -15
+  _gravityForce: -9.81
   _dragForce: 10
   _cameraController: {fileID: 0}
   _maxHealth: 100

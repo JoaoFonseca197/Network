@@ -171,16 +171,20 @@ public class Character : NetworkBehaviour, ICharacter
 
     private void Jump()
     {
-        //_velocity.y += _accelerationJumpForce
+        JumpServerRpc();
+    }
+    [ServerRpc]
+    private void JumpServerRpc()
+    {
         _startJump = true;
     }
     private void UpdateVelocity()
     {
         float ForceJump =0;
-        if (_startJump)
+        if (_startJump && !_isOnAir)
         {
             ForceJump += _accelerationJumpForce;
-            _startJump = false;
+             _startJump = false;
         }
         else
             ForceJump = 0;
@@ -195,9 +199,9 @@ public class Character : NetworkBehaviour, ICharacter
         }
         else
         {
+            _velocity.y += _gravityForce * Time.deltaTime;
+            if (_velocity.y < -0.1f) 
                 _velocity.y = -0.1f;
-
-
         }
     }
 
