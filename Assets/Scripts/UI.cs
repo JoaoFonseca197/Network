@@ -8,47 +8,31 @@ public class UI : NetworkBehaviour
     [SerializeField] TextMeshProUGUI _textHP;
     [SerializeField] TextMeshProUGUI _textAmmunition;
 
-    //private Character _character;
-    //private Gun _gun;
-    //private void Awake()
-    //{
-    //    if(NetworkManager.Singleton.IsClient)
-    //    {
-    //        _character = FindFirstObjectByType<Character>();
-    //        _gun = _character.GetComponent<Gun>();
-    //        Debug.Log("This is player name = " + _character.gameObject.name);
-    //        Debug.Log("This is gun player name = " + _gun.gameObject.name);
-    //    }
+    private ClientRpcParams _clientRpcParams;
 
-        
-    //}
-    private void OnEnable()
+
+
+    private void Awake()
     {
-        //if( _character != null )
-        //{
-        //    _character.UpdateHp += UpdateHPClientRpc;
-        //    _gun.UpdateAmmunition += UpdateAmmunitionClientRpc;
-        //}
-        //NetworkManager.Singleton.OnClientConnectedCallback += GetPlayerComponents;
+        _clientRpcParams = new ClientRpcParams();
     }
-    //private void GetPlayerComponents(ulong clientid)
-    //{
-    //    NetworkObject nto = NetworkManager.Singleton.ConnectedClientsList[];
-    //    _gun = clientid.GetComponent<Gun>();
-    //    _character = clientid.GetComponent<Character>();
 
-    //}
     public void UpdateLocalHp(int currentHP)
     {
-        UpdateHPClientRpc(currentHP);
+            _textHP.text = $"{currentHP}/100";
+
+    }
+    public void UpdateHPClientParams(int currentHP,ulong clientID)
+    {
+        _clientRpcParams.Send.TargetClientIds = new ulong[] { clientID };
+
+        UpdateUpdateHPClientRpc(currentHP, _clientRpcParams);
 
     }
     [ClientRpc]
-    public void UpdateHPClientRpc(int currentHP)
+    private void UpdateUpdateHPClientRpc(int currentHP, ClientRpcParams clientParams)
     {
-        _textHP.text = $"{currentHP}/100";
-        if (NetworkManager.Singleton.IsServer)
-            _textHP.color = Color.yellow;
+        UpdateLocalHp(currentHP);
     }
 
     public void UpdateAmmunition(int currentAmmunition, int totalAmmunition)

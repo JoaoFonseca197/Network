@@ -28,6 +28,7 @@ public class NetworkSetup : MonoBehaviour
     [SerializeField] private Character[] _character;
     [SerializeField] private Transform[] _spawnPoints;
     [SerializeField] private TextMeshProUGUI _textMeshProUGUI;
+    [SerializeField] private UI _UI;
 
     private bool _isServer;
     private int  _playerCount;
@@ -85,12 +86,13 @@ public class NetworkSetup : MonoBehaviour
         Debug.Log($"Player {clientId} connected, prefab index = {_playerCount}!");
         // Check a free spot for this player
         
-        var spawnedObject = Instantiate(_character[_playerCount], _spawnPoints[0].position, Quaternion.identity);
+        var spawnedPlayer = Instantiate(_character[_playerCount], _spawnPoints[0].position, Quaternion.identity);
 
 
         
-        NetworkObject nto = spawnedObject.GetComponent<NetworkObject>();
+        NetworkObject nto = spawnedPlayer.GetComponent<NetworkObject>();
         nto.SpawnAsPlayerObject(clientId);
+
 
         _textMeshProUGUI.text = "Spawned Character";
         _playerCount = (_playerCount+ 1) % _character.Length;
