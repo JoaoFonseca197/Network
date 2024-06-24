@@ -72,14 +72,7 @@ public class Character : NetworkBehaviour, ICharacter
 
     private void Start()
     {
-        //if(NetworkManager.Singleton.IsClient && _networkObject.IsLocalPlayer)
-        //{
-        //    _cameraController.depth = 1;
-        //}
-        //else
-        //{
-        //    _cameraController.depth = 0;
-        //}
+        
         if (NetworkManager.Singleton.IsServer)
         {
             _hp.Value = _maxHealth;
@@ -139,16 +132,6 @@ public class Character : NetworkBehaviour, ICharacter
         _cameraController.RotateInXAxisServerRpc(input);
     }
 
-    //[ServerRpc]
-    //private void UpdateHeadServerRpc(float input)
-    //{
-
-    //    _xRotation -= input;
-
-    //    _xRotation = Mathf.Clamp(_xRotation, -90f, 90f);
-
-    //    _cameraController.transform.rotation = Quaternion.Euler(_xRotation, 0, 0);
-    //}
 
     private void GetlocalInput()
     {
