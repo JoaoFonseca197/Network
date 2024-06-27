@@ -225,19 +225,6 @@ public class Character : NetworkBehaviour, ICharacter
         }
     }
 
-    //[ServerRpc]
-    //private void ReceiveDamageServerRpc(int damage)
-    //{
-    //    if (_hp.Value > 0)
-    //    {
-    //        _hp.Value -= damage;
-    //        //_animator.Play("Hit");
-    //        CheckDeath();
-    //        //_animator.SetBool("Hit", false);
-    //        _hpTextMeshPro.text = _hp.Value.ToString();
-    //        _UI.UpdateHPClientRpc(_hp.Value);
-    //    }
-    //}
     private void CheckDeath()
     {
         if (_hp.Value <= 0)
