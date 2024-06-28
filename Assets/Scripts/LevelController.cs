@@ -1,18 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 public class LevelController : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    [SerializeField] private Transform[] _spawners;
+
+    public Vector3 GetSpawnPoint(ulong ID)
     {
-        
+        return _spawners[ID-1].position;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }

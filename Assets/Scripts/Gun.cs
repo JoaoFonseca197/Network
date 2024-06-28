@@ -64,6 +64,14 @@ public class Gun : NetworkBehaviour , IGun
         }
 
     }
+
+    //Simplified Respawn
+    public void Respawn()
+    {
+        _totalAmmunition = _gunData.totalAmmunition;
+        _currentAmmunition = _gunData.magAmmunition;
+        _UI.UpdateAmmunitionClientParams(_currentAmmunition, _totalAmmunition, _networkObject.OwnerClientId);
+    }
     
 
 }

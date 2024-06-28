@@ -32,26 +32,31 @@ public class Character : NetworkBehaviour, ICharacter
                              
     private Animator                                    _animator;
 
+    [SerializeField] private Transform[]                _spawners;
+
     private Vector2 _input;
     [SerializeField] private Vector3 _velocity;
 
     private bool                            _isOnAir;
     private bool                            _isDead;
     private bool                            _startJump;
-    private IGun                            _weapon;
+    private Gun                            _weapon;
     private NetworkObject                   _networkObject;
     private UI                              _UI;
     private NetworkVariable<int>            _hp;
     private NetworkVariable<Vector2>        _networkInput;
+    private LevelController                 _levelController;
 
     private CharacterController _characterController;
 
     public Action<int> UpdateHp;
-    
 
-    public int HP { get; set; }
+
+
+    public int HP => _hp.Value;
 
     public bool IsDead => _isDead;
+
 
     private void Awake()
     {
@@ -59,14 +64,13 @@ public class Character : NetworkBehaviour, ICharacter
         _networkInput = new NetworkVariable<Vector2>();
         _hp = new NetworkVariable<int>();
 
-        HP = _maxHealth;
 
         _cameraController = GetComponentInChildren<CameraController>();
 
-
+        _levelController = FindFirstObjectByType<LevelController>();
         _hpTextMeshPro.text = _hp.Value.ToString();
         _characterController = GetComponent<CharacterController>();
-        _weapon = GetComponentInChildren<IGun>();
+        _weapon = GetComponentInChildren<Gun>();
         Cursor.lockState = CursorLockMode.Locked;
         _UI = FindFirstObjectByType<UI>();
         
@@ -80,7 +84,7 @@ public class Character : NetworkBehaviour, ICharacter
             _hp.Value = _maxHealth;
             _networkInput.Value = _input;
         }
-        _UI.UpdateLocalHp(HP);
+        _UI.UpdateLocalHp(_hp.Value);
         _UI.UpdateAmmunition(_weapon.CurrentAmmunition, _weapon.TotalAmmunition);
     }
 
@@ -229,11 +233,21 @@ public class Character : NetworkBehaviour, ICharacter
     {
         if (_hp.Value <= 0)
         {
-            _isDead = true;
-            _hpTextMeshPro.text = "Dead";
+            Respawn();
         }
         else
             _isDead = false;
+    }
+
+    //Simplefied respawn
+    private void Respawn()
+    {
+        _hp.Value = 100;
+        _UI.UpdateHPClientParams(_hp.Value, _networkObject.OwnerClientId);
+        _characterController.enabled  = false;
+        transform.position = _levelController.GetSpawnPoint(OwnerClientId);
+        _characterController.enabled = true;
+        _weapon.Respawn();
     }
     private void OnDrawGizmos()
     {
