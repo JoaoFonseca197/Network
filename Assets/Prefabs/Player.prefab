@@ -672,7 +672,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _accelerationForwardForce: 0.1
   _accelerationStrafeForce: 0.1
-  _accelerationJumpForce: 3
+  _accelerationJumpForce: 1.5
   _maxForwardVelocity: 0.5
   _maxBackwardVelocity: -0.5
   _maxStrafeVelocity: 10
@@ -690,6 +690,7 @@ MonoBehaviour:
   _maxHealth: 100
   _hpTextMeshPro: {fileID: 7203705838523466672}
   _textInput: {fileID: 3507984568892539177}
+  _spawners: []
   _velocity: {x: 0, y: 0, z: 0}
 --- !u!114 &6875692490377222514
 MonoBehaviour:
