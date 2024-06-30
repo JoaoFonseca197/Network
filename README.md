@@ -222,7 +222,7 @@ private void FixedUpdate()
 
 }
 ```
-# UI
+## UI
 The UI runs mostly in the server and when its time to update in the client we
 call the method `UpdateUpdateHPClientRpc` this method uses the ClientRPC that,
 makes the server call a method from the clients. Normally any ClientRPC method
